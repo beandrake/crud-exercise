@@ -1,5 +1,6 @@
 # crud-exercise
-A bare bones CRUD (create, read, update, delete) web application built using C#/ASP.NET Core with Visual Studio 2017.
+A bare bones CRUD (create, read, update, delete) web application built using C#/ASP.NET Core with Visual Studio 2017.  You can get a free copy of Visual Studio here:
+https://www.visualstudio.com/vs/community/
 
 
 ## Goal
@@ -26,3 +27,9 @@ This project uses web interface to allow users to view and control a list of pas
 
 This repository does not include that database.  When run for the first time, the project will create a local database and populate it with test data.  From that point forward, the database will continue to exist locally.
 
+
+## Project History
+This project was first attempted in Visual Studio Code.  However, the official tutorials were out of date for that platform, which lead to plentiful roadblocks.  Luckily, I was pointed towards the free version of Visual Studio 2017 linked to above, which made the project much more manageable.
+
+The repository for the (unfinished) Visual Studio Code version of the project is located here:
+https://github.com/beandrake/crud-exercise-vscode
