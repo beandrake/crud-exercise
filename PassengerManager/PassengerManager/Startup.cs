@@ -45,11 +45,13 @@ namespace PassengerManager
 
             app.UseStaticFiles();
 
+            // this sets the default content that appears in place of
+            // @RenderSection(~) in the file Shared/_Layouts.cshtml
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Passengers}/{action=Index}/{id?}");
             });
         }
     }
