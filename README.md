@@ -12,11 +12,11 @@ This web application is a cruise line passenger management tool which performs t
 	 
 3. Allows users to create new passengers including first name, last name, and phone number; the passenger number is auto-generated when saving the record
 	 
-4. Allow users to update passengers, including the three user-chosen values
+4. Allows users to update passengers, including the three user-chosen values
 	 
-5. Allow users to delete a passenger
+5. Allows users to delete a passenger
 	 
-6. Allow users to view a list of passengers 
+6. Allows users to view a list of passengers 
 
 
 ## Details
