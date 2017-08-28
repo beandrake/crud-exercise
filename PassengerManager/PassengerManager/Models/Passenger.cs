@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PassengerManager.Models
 {
@@ -10,6 +11,8 @@ namespace PassengerManager.Models
     public class Passenger
     {
         // primary key
+        // The below line tells the database to generate a unique ID upon insertion
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
         [Required]
@@ -22,7 +25,7 @@ namespace PassengerManager.Models
         [DisplayName("First Name")]
         public string FirstName { get; set; }
 
-        [Required]
+        // not requiring this because people without phones deserve cruises, too
         [StringLength(50)]
         [DisplayName("Phone Number")]
         public string PhoneNumber { get; set; }
