@@ -37,6 +37,7 @@ namespace PassengerManager.Data
 
             // "Persists all updates to the data source and resets change tracking in the object context."
             // From what I gather, this propagates the changes in the C# object to the actual database.
+            // It's at this point that our Passengers will be given their database-generated ID's.
             context.SaveChanges();
         }
     }

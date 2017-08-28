@@ -35,6 +35,7 @@ namespace PassengerManager.Controllers
 
             var passenger = await _context.Passengers
                 .SingleOrDefaultAsync(m => m.ID == id);
+
             if (passenger == null)
             {
                 return NotFound();
@@ -85,10 +86,12 @@ namespace PassengerManager.Controllers
             }
 
             var passenger = await _context.Passengers.SingleOrDefaultAsync(m => m.ID == id);
+
             if (passenger == null)
             {
                 return NotFound();
             }
+
             return View(passenger);
         }
 
@@ -137,6 +140,7 @@ namespace PassengerManager.Controllers
 
             var passenger = await _context.Passengers
                 .SingleOrDefaultAsync(m => m.ID == id);
+
             if (passenger == null)
             {
                 return NotFound();

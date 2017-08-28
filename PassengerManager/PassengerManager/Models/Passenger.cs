@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PassengerManager.Models
 {
-    // note that for the purpose of this project,
     // this object definition is also defining the associated database schema
     public class Passenger
     {

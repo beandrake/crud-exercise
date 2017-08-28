@@ -9,6 +9,7 @@ namespace PassengerManager.Data
         {
         }
 
+        // any models we want to map to the database go here
         public DbSet<Passenger> Passengers { get; set; }
 
         // makes the table name singular instead of plural (overrides the default behavior)
