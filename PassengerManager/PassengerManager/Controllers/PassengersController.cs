@@ -228,11 +228,34 @@ namespace PassengerManager.Controllers
          * shortly after the initial implementation, so I caught and corrected
          * this crash.
          * 
-         * The most difficult bug to solve was when I discovered that while editing a
-         * Passenger, adding extra spaces at the end of a Phone Number or name field
-         * resulted in an InvalidOperationException.
+         * The most difficult bug to solve was when I discovered that for
+         * some reason, the checks I made to prevent duplicate passengers
+         * from being created result in all non-duplicate Edit operations
+         * failing due to an InvalidOperationException.
          * 
-         * Still working on it!
+         * According to the debug output, the Exception is occuring in the Edit
+         * method's _context.Update(passenger);
+         * 
+         * That's odd, because the point of failure is no within the checks
+         * I added.  And it's particularly odd because my code shouldn't be
+         * changing any data, just program flow.  It checks some values,
+         * then returns true or false depending on what it finds.
+         * 
+         * The really strange part is that if I just have my PassengerIsDuplicate
+         * method return false (thus avoiding all the checks),
+         * the bug disappears.
+         * 
+         * Something neat is happening!
+         * 
+         * Error output:
+         * InvalidOperationException: The instance of entity type 'Passenger' cannot be tracked because another instance with the same key value for {'ID'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+         * 
+         * It says an entry has the same key, which makes me think that
+         * the Update operation is somehow being interpreted as trying to create
+         * a duplicate of the data rather than simply changing the values.
+         * Not sure that makes sense though.
+         * 
+         * 
          * 
          */
 
