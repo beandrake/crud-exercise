@@ -113,51 +113,82 @@ namespace PassengerManager.Controllers
         }
 
         // POST: Passengers/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        // Method adapted from: https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/crud
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,LastName,FirstName,PhoneNumber")] Passenger passenger)
+        public async Task<IActionResult> EditPost(int? id)
         {
-            if (id != passenger.ID)
+            if (id == null)
             {
                 return NotFound();
             }
 
+            /* 
+             * Aftering digging through multiple stackoverflow questions and
+             * then taking another look at the SingleOrDefaultAsync method's
+             * hover description, I believe I understand this line.
+             * It's basically just returning the Passenger within the
+             * current context that meets the requirement: id == Passenger.id
+             */            
+            var passengerToUpdate = await _context.Passengers.SingleOrDefaultAsync(p => p.ID == id);
 
-            if (ModelState.IsValid)
+
+            /*
+             * The line above gets the passenger which needs to be updated.
+             * Below, the:    if (await TryUpdateModelAsync...
+             * Is where the passenger is actually being updated.
+             * This means any checks I want to make need to occur between
+             * them.  So here's the place to try. 
+             */
+
+            /*
+             * I've done a good deal of Googling, but I am having trouble getting
+             * access to the input for either checking or manipulation
+             * within this method.  For now, I'm commenting out the basic
+             * structure of what I'm hoping to put here; maybe I can find
+             * a way to get it working later.
+             */
+
+            /*
+            if (PassengerIsDuplicate(obj.FirstName, obj.LastName, obj.PhoneNumber))
             {
-                if (PassengerIsDuplicate(passenger))
-                {
-                    // fail message
-                    ModelState.AddModelError("",
-                        "Either this Passenger's data was not changed or " +
-                        "a Passenger with this exact data already exists. " +
-                        "Passenger not updated.");
+                // fail message
+                ModelState.AddModelError("",
+                    "Either another passenger with this exact data already exists " +
+                    "or this passenger has not been changed." +
+                    "Passenger not created.");
 
-                    // return to previous view
-                    return View(passenger);
-                }
+                // return to previous view
+                return View(passengerToUpdate);
+            }
+            */
+            
 
+            /*
+             * The below function tries to update the model with information
+             * provided via the controller, meaning that this is where
+             * the user input is coming into play.
+             * Returns true if update worked.
+             */
+            if (await TryUpdateModelAsync<Passenger>(
+                passengerToUpdate,
+                "",
+                p => p.FirstName, p => p.LastName, p => p.PhoneNumber))
+            {
                 try
                 {
-                    _context.Update(passenger);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateException /* ex */)
                 {
-                    if (!PassengerExists(passenger.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    //Log the error (uncomment ex variable name and write a log.)
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                        "Try again, and if the problem persists, " +
+                        "see your system administrator.");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(passenger);
+            return View(passengerToUpdate);
         }
 
         // GET: Passengers/Delete/5
@@ -268,15 +299,22 @@ namespace PassengerManager.Controllers
          * Returns true if it finds a match.
          */
         private bool PassengerIsDuplicate(Passenger newPassenger)
+        {
+            return PassengerIsDuplicate(newPassenger.LastName,
+                                        newPassenger.FirstName,
+                                        newPassenger.PhoneNumber);
+        }
+
+        private bool PassengerIsDuplicate(string newLastName, string newFirstName, string newPhoneNumber)
         {            
             // check all passengers for a match
             foreach (Passenger currentPassenger in _context.Passengers)
             {
                 // if they have the same name...
-                if (newPassenger.FirstName.Equals(currentPassenger.FirstName) &&
-                    newPassenger.LastName.Equals(currentPassenger.LastName))
+                if (newFirstName.Equals(currentPassenger.FirstName) &&
+                    newLastName.Equals(currentPassenger.LastName))
                 {
-                    if (newPassenger.PhoneNumber == null)
+                    if (newPhoneNumber == null)
                     {
                         // ...and both phone numbers are null, we have a match
                         if (currentPassenger.PhoneNumber == null)
@@ -288,7 +326,7 @@ namespace PassengerManager.Controllers
                     {
                         // ... and both non-null phone numbers are the same, we have a match
                         if (currentPassenger.PhoneNumber != null &&
-                            newPassenger.PhoneNumber.Equals(currentPassenger.PhoneNumber))
+                            newPhoneNumber.Equals(currentPassenger.PhoneNumber))
                         {
                             return true;
                         }
