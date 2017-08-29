@@ -245,9 +245,7 @@ namespace PassengerManager.Controllers
          * Returns true if it finds a match.
          */
         private bool PassengerIsDuplicate(Passenger newPassenger)
-        {
-            return false;
-            
+        {            
             // check all passengers for a match
             foreach (Passenger currentPassenger in _context.Passengers)
             {
