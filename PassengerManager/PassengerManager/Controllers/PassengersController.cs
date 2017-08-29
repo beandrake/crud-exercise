@@ -65,17 +65,19 @@ namespace PassengerManager.Controllers
         {
             try
             {
-                if (PassengerIsDuplicate(passenger))
-                {
-                    // fail message
-
-                    // return to previous view
-                    return View(passenger);
-                }
-
-
                 if (ModelState.IsValid)
                 {
+                    if (PassengerIsDuplicate(passenger))
+                    {
+                        // fail message
+                        ModelState.AddModelError("",
+                            "A Passenger with this exact data already exists. " +
+                            "Passenger not created.");
+
+                        // return to previous view
+                        return View(passenger);
+                    }
+
                     _context.Add(passenger);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -122,8 +124,21 @@ namespace PassengerManager.Controllers
                 return NotFound();
             }
 
+
             if (ModelState.IsValid)
             {
+                if (PassengerIsDuplicate(passenger))
+                {
+                    // fail message
+                    ModelState.AddModelError("",
+                        "Either this Passenger's data was not changed or " +
+                        "a Passenger with this exact data already exists. " +
+                        "Passenger not updated.");
+
+                    // return to previous view
+                    return View(passenger);
+                }
+
                 try
                 {
                     _context.Update(passenger);
@@ -182,6 +197,48 @@ namespace PassengerManager.Controllers
         }
 
 
+
+        /*
+         * Development note:
+         * Figuring out how to inject some extra validation into the process
+         * was a bit challenging.  I started by trying to locate a point in the
+         * code where I would be able to access the user's input before it was
+         * entered in the database.  It made sense that it would be in a
+         * controller, and fortunately it was.
+         * 
+         * Then I had to figure out where in the process I should put my checks.
+         * At first I wanted to add them into ModelState.IsValid, but that proved
+         * to be too opaque to easily work with.  In retrospect, I think it would
+         * have been a poor choice, because my current understanding is that
+         * ModelState.IsValid is really just about verifying that the model
+         * conforms to the table's schema.
+         * 
+         * I eventually decided it made the most sense to put my checks after
+         * the ModelState.IsValid check.  By doing this, I get the benefit of
+         * knowing these checks have already passed once I do my checks.
+         * Additionally, and perhaps more importantly, since the main additional
+         * check I implemented was ensuring that each Passenger was unique
+         * (not taking into account ID's), it seemed better to have the
+         * more trivial ModelState.IsValid check before my order(N) search
+         * through all existing Passengers.  That way if ModelState.IsValid is
+         * false, we can avoid doing the more expensive check.
+         * 
+         * Initially I forgot to incorporate the possibility of PhoneNumber
+         * being null into my checks.  Fortunately I thought to test this
+         * shortly after the initial implementation, so I caught and corrected
+         * this crash.
+         * 
+         * The most difficult bug to solve was when I discovered that while editing a
+         * Passenger, adding extra spaces at the end of a Phone Number or name field
+         * resulted in an InvalidOperationException.
+         * 
+         * Still working on it!
+         * 
+         */
+
+
+
+
         /*
          * Checks to see if a Passenger object has the same non-ID
          * values as an existing Passenger in the database.
@@ -189,13 +246,32 @@ namespace PassengerManager.Controllers
          */
         private bool PassengerIsDuplicate(Passenger newPassenger)
         {
+            return false;
+            
+            // check all passengers for a match
             foreach (Passenger currentPassenger in _context.Passengers)
             {
+                // if they have the same name...
                 if (newPassenger.FirstName.Equals(currentPassenger.FirstName) &&
-                    newPassenger.LastName.Equals(currentPassenger.LastName) &&
-                    newPassenger.PhoneNumber.Equals(currentPassenger.PhoneNumber))
+                    newPassenger.LastName.Equals(currentPassenger.LastName))
                 {
-                    return true;
+                    if (newPassenger.PhoneNumber == null)
+                    {
+                        // ...and both phone numbers are null, we have a match
+                        if (currentPassenger.PhoneNumber == null)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        // ... and both non-null phone numbers are the same, we have a match
+                        if (currentPassenger.PhoneNumber != null &&
+                            newPassenger.PhoneNumber.Equals(currentPassenger.PhoneNumber))
+                        {
+                            return true;
+                        }
+                    }
                 }
             }
 
