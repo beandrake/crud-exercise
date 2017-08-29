@@ -50,15 +50,30 @@ namespace PassengerManager.Controllers
             return View();
         }
 
+
         // POST: Passengers/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /*
+         * Based on testing, the Bind below seems to be restricting which column data is sent.
+         * For example, try replacing with Bind("ID")
+         * explanation: https://www.codeproject.com/tips/1032266/mvc-attributes
+         */
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("LastName,FirstName,PhoneNumber")] Passenger passenger)
         {
             try
             {
+                if (PassengerIsDuplicate(passenger))
+                {
+                    // fail message
+
+                    // return to previous view
+                    return View(passenger);
+                }
+
+
                 if (ModelState.IsValid)
                 {
                     _context.Add(passenger);
@@ -160,9 +175,31 @@ namespace PassengerManager.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
         private bool PassengerExists(int id)
         {
             return _context.Passengers.Any(e => e.ID == id);
+        }
+
+
+        /*
+         * Checks to see if a Passenger object has the same non-ID
+         * values as an existing Passenger in the database.
+         * Returns true if it finds a match.
+         */
+        private bool PassengerIsDuplicate(Passenger newPassenger)
+        {
+            foreach (Passenger currentPassenger in _context.Passengers)
+            {
+                if (newPassenger.FirstName.Equals(currentPassenger.FirstName) &&
+                    newPassenger.LastName.Equals(currentPassenger.LastName) &&
+                    newPassenger.PhoneNumber.Equals(currentPassenger.PhoneNumber))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
