@@ -16,6 +16,7 @@ namespace PassengerManager
 {
     public class Program
     {
+        // based on https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/intro
         public static void Main(string[] args)
         {
             var host = BuildWebHost(args);
@@ -25,7 +26,10 @@ namespace PassengerManager
                 var services = scope.ServiceProvider;
                 try
                 {
+                    // connect to a database
                     var context = services.GetRequiredService<OverallContext>();
+
+                    // validates the database's creation and gives it test data if it's empty
                     DbInitializer.Initialize(context);
                 }
                 catch (Exception ex)

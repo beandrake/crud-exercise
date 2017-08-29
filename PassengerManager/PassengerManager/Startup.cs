@@ -24,11 +24,11 @@ namespace PassengerManager
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // connects to database
+
+            // For local development, the ASP.NET Core configuration system reads the connection string from the appsettings.json file.
             services.AddDbContext<OverallContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            // needed for MVC framework
             services.AddMvc();
         }
 
@@ -47,8 +47,16 @@ namespace PassengerManager
 
             app.UseStaticFiles();
 
+            /*
+             * While it may be helpful at some later stage of development,
+             * I didn't see the need for the Home Page at present.
+             * I wanted to user to immediately see Passengers/Index.cshtml,
+             * which has the interface needed to view and edit Passengers.
+             * I found the solution here: https://stackoverflow.com/questions/1142003/set-homepage-in-asp-net-mvc           
+             */
+
             // this sets the default content that appears in place of
-            // @RenderBody in the file Shared/_Layouts.cshtml
+            // @RenderBody in the file: Shared/_Layouts.cshtml
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
