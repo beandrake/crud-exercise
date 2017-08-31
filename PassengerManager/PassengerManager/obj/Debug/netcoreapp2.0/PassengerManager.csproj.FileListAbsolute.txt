@@ -1,0 +1,11 @@
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\bin\Debug\netcoreapp2.0\PassengerManager.deps.json
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\bin\Debug\netcoreapp2.0\PassengerManager.runtimeconfig.json
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\bin\Debug\netcoreapp2.0\PassengerManager.runtimeconfig.dev.json
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\bin\Debug\netcoreapp2.0\PassengerManager.dll
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\bin\Debug\netcoreapp2.0\PassengerManager.pdb
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\obj\Debug\netcoreapp2.0\PassengerManager.csprojResolveAssemblyReference.cache
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\obj\Debug\netcoreapp2.0\PassengerManager.csproj.CoreCompileInputs.cache
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\obj\Debug\netcoreapp2.0\PassengerManager.AssemblyInfoInputs.cache
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\obj\Debug\netcoreapp2.0\PassengerManager.AssemblyInfo.cs
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\obj\Debug\netcoreapp2.0\PassengerManager.dll
+C:\Users\Branden\Desktop\creations\web\exercises\crud-exercise\PassengerManager\PassengerManager\obj\Debug\netcoreapp2.0\PassengerManager.pdb

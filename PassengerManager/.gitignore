@@ -19,7 +19,7 @@ x64/
 x86/
 bld/
 ####################################### [Bb]in/   Commenting this out so folks can get my DLL's
-[Oo]bj/
+#[Oo]bj/
 [Ll]og/
 
 # Visual Studio 2015 cache/options directory
