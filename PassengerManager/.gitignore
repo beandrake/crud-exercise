@@ -11,14 +11,14 @@
 *.userprefs
 
 # Build results
-[Dd]ebug/
+########################################[Dd]ebug/   Same as below
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
 x64/
 x86/
 bld/
-[Bb]in/
+####################################### [Bb]in/   Commenting this out so folks can get my DLL's
 [Oo]bj/
 [Ll]og/
 
@@ -259,3 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+
+
+
