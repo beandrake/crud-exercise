@@ -71,10 +71,9 @@ namespace PassengerManager.Controllers
             {
                 if (ModelState.IsValid)
                 {
-
                     /*
-                     * Note: currently commented out for the sake of consistency.
-                     * Only uncomment when this behavior can be duplicated in Edit.
+                     * Note: currently commented out because it seems to be
+                     * bad form to do checks in the controller.
                     if (PassengerIsDuplicate(passenger))
                     {
                         // fail message
@@ -86,7 +85,6 @@ namespace PassengerManager.Controllers
                         return View(passenger);
                     }
                     */
-
                     _context.Add(passenger);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -127,9 +125,7 @@ namespace PassengerManager.Controllers
 
         // POST: Passengers/Edit/5
         // Method adapted from: https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/crud
-        /* This is the tutorial's recommended Edit method
-         * Unfortunately, it seems to do everything on its own.
-         */
+        // This is the tutorial's recommended Edit method
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(int? id)
@@ -138,7 +134,6 @@ namespace PassengerManager.Controllers
             {
                 return NotFound();
             }
-
             /* 
              * Aftering digging through multiple stackoverflow questions and
              * then taking another look at the SingleOrDefaultAsync method's
@@ -151,37 +146,6 @@ namespace PassengerManager.Controllers
              * have any lasting effect on the model, either.
              */            
             var passengerToUpdate = await _context.Passengers.SingleOrDefaultAsync(p => p.ID == id);
-
-            /*
-             * The line above gets the passenger which needs to be updated.
-             * Below, the:    if (await TryUpdateModelAsync...
-             * Is where the passenger is actually being updated.
-             * This means any checks I want to make need to occur between
-             * them.  So here's the place to try. 
-             */
-
-            /*
-             * I've done a good deal of Googling, but I am having trouble getting
-             * access to the input for either checking or manipulation
-             * within this method.  For now, I'm commenting out the basic
-             * structure of what I'm hoping to put here; maybe I can find
-             * a way to get it working later.
-             */
-
-            /*
-            if (PassengerIsDuplicate(obj.FirstName, obj.LastName, obj.PhoneNumber))
-            {
-                // fail message
-                ModelState.AddModelError("",
-                    "Either another passenger with this exact data already exists " +
-                    "or this passenger has not been changed." +
-                    "Passenger not created.");
-
-                // return to previous view
-                return View(passengerToUpdate);
-            }
-            */
-
 
             /*
              * The below function tries to update the model with information
@@ -212,67 +176,6 @@ namespace PassengerManager.Controllers
             return View(passengerToUpdate);
         }
 
-
-
-        // POST: Passengers/Edit/5
-        // Method adapted from: https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/crud
-        /*
-         * The below is based on the secondary implementation of Edit from the above tutorial.
-         * Unedited, it works.
-         * But I added a check in (PassengerIsDuplicate).  It simply looks through
-         * the current model's list of passengers, and based on what it finds
-         * it returns true or false.  No editing of any data!
-         * With this check added in, editing a passenger with a unique result
-         * will always result in the following error:
-         * 
-         * InvalidOperationException: The instance of entity type 'Passenger' cannot
-         * be tracked because another instance with the same key value for {'ID'} is
-         * already being tracked. When attaching existing entities, ensure that only
-         * one entity instance with a given key value is attached. Consider using 
-         * 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting 
-         * key values.
-         */
-        /*
-         * Commenting this out for now and using the recommend EditPost method above.
-        [HttpPost, ActionName("Edit")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,LastName,FirstName,PhoneNumber")] Passenger passenger)
-        {
-            if (id != passenger.ID)
-            {
-                return NotFound();
-            }
-            if (ModelState.IsValid)
-            {
-                if (PassengerIsDuplicate(passenger))
-                {
-                    // fail message
-                    ModelState.AddModelError("",
-                        "Either another passenger with this exact data already exists " +
-                        "or this passenger has not been changed." +
-                        "Passenger not created.");
-
-                    // return to previous view
-                    return View(passenger);
-                }
-
-                try
-                {
-                    _context.Update(passenger);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateException)
-                {
-                    //Log the error (uncomment ex variable name and write a log.)
-                    ModelState.AddModelError("", "Unable to save changes. " +
-                        "Try again, and if the problem persists, " +
-                        "see your system administrator.");
-                }
-            }
-            return View(passenger);
-        }
-        */
 
 
         // GET: Passengers/Delete/5
@@ -328,7 +231,8 @@ namespace PassengerManager.Controllers
          * to be too opaque to easily work with.  In retrospect, I think it would
          * have been a poor choice, because my current understanding is that
          * ModelState.IsValid is really just about verifying that the model
-         * conforms to the table's schema.
+         * conforms to the table's schema, which might not make sense for
+         * detecting duplicate passengers that do match the schema.
          * 
          * I eventually decided it made the most sense to put my checks after
          * the ModelState.IsValid check.  By doing this, I get the benefit of
@@ -362,8 +266,6 @@ namespace PassengerManager.Controllers
          * method return false (thus avoiding all the checks),
          * the bug disappears.
          * 
-         * Something neat is happening!
-         * 
          * Error output:
          * InvalidOperationException: The instance of entity type 'Passenger' cannot be tracked because another instance with the same key value for {'ID'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
          * 
@@ -377,18 +279,19 @@ namespace PassengerManager.Controllers
          * is likely a better place to perform these checks,
          * so I've been trying to figure out how to create my own validation.
          * 
-         * At present, I have removed all of my custom validation from this
-         * application.  My instinct says that it would be poor UX to validate
+         * At present, I have removed all of my custom validation from the
+         * controller.  My instinct says that it would be poor UX to validate
          * data differently depending on where it is being created or updated;
          * inconsistency is very frustrating for users.  So until it can
          * work for the whole model, it's not allowed to work for any of it.
          * 
+         * UPDATE:
          * It seems like the innate validation system is the way to go.  From
          * what I've been reading, proper MVC uses the Controller only for flow
          * control.
          * 
-         * 
-         * 
+         * UPDATE:
+         * It seems to be working!  Check Passengers.cs for more info.
          */
 
 
@@ -439,3 +342,70 @@ namespace PassengerManager.Controllers
         }
     }
 }
+
+
+
+/*
+ * REFERENCE
+ */
+
+// POST: Passengers/Edit/5
+// Method adapted from: https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/crud
+/*
+ * The below is based on the secondary implementation of Edit from the above tutorial.
+ * Unedited, it works.
+ * But I added a check in (PassengerIsDuplicate).  It simply looks through
+ * the current model's list of passengers, and based on what it finds
+ * it returns true or false.  No editing of any data!
+ * With this check added in, editing a passenger with a unique result
+ * will always result in the following error:
+ * 
+ * InvalidOperationException: The instance of entity type 'Passenger' cannot
+ * be tracked because another instance with the same key value for {'ID'} is
+ * already being tracked. When attaching existing entities, ensure that only
+ * one entity instance with a given key value is attached. Consider using 
+ * 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting 
+ * key values.
+ * 
+ * After doing some research, it seems that validating data in the controller
+ * isn't a good practice, so this version of the method will remain commented out.
+ *
+[HttpPost, ActionName("Edit")]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, [Bind("ID,LastName,FirstName,PhoneNumber")] Passenger passenger)
+{
+    if (id != passenger.ID)
+    {
+        return NotFound();
+    }
+    if (ModelState.IsValid)
+    {
+        if (PassengerIsDuplicate(passenger))
+        {
+            // fail message
+            ModelState.AddModelError("",
+                "Either another passenger with this exact data already exists " +
+                "or this passenger has not been changed." +
+                "Passenger not created.");
+
+            // return to previous view
+            return View(passenger);
+        }
+
+        try
+        {
+            _context.Update(passenger);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException)
+        {
+            //Log the error (uncomment ex variable name and write a log.)
+            ModelState.AddModelError("", "Unable to save changes. " +
+                "Try again, and if the problem persists, " +
+                "see your system administrator.");
+        }
+    }
+    return View(passenger);
+}
+*/
