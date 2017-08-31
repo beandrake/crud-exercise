@@ -19,11 +19,13 @@ namespace PassengerManager.Controllers
             _context = context;
         }
 
+
         // GET: Passengers
         public async Task<IActionResult> Index()
         {
             return View(await _context.Passengers.ToListAsync());
         }
+
 
         // GET: Passengers/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -44,6 +46,8 @@ namespace PassengerManager.Controllers
             return View(passenger);
         }
 
+
+
         // GET: Passengers/Create
         public IActionResult Create()
         {
@@ -56,8 +60,8 @@ namespace PassengerManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         /*
          * Based on testing, the Bind below seems to be restricting which column data is sent.
-         * For example, try replacing with Bind("ID")
-         * explanation: https://www.codeproject.com/tips/1032266/mvc-attributes
+         * For example, try replacing with Bind("ID").
+         * Explanation: https://www.codeproject.com/tips/1032266/mvc-attributes
          */
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -67,6 +71,10 @@ namespace PassengerManager.Controllers
             {
                 if (ModelState.IsValid)
                 {
+
+                    /*
+                     * Note: currently commented out for the sake of consistency.
+                     * Only uncomment when this behavior can be duplicated in Edit.
                     if (PassengerIsDuplicate(passenger))
                     {
                         // fail message
@@ -77,6 +85,7 @@ namespace PassengerManager.Controllers
                         // return to previous view
                         return View(passenger);
                     }
+                    */
 
                     _context.Add(passenger);
                     await _context.SaveChangesAsync();
@@ -93,6 +102,8 @@ namespace PassengerManager.Controllers
 
             return View(passenger);
         }
+
+
 
         // GET: Passengers/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -112,8 +123,13 @@ namespace PassengerManager.Controllers
             return View(passenger);
         }
 
+
+
         // POST: Passengers/Edit/5
         // Method adapted from: https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/crud
+        /* This is the tutorial's recommended Edit method
+         * Unfortunately, it seems to do everything on its own.
+         */
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(int? id)
@@ -129,9 +145,12 @@ namespace PassengerManager.Controllers
              * hover description, I believe I understand this line.
              * It's basically just returning the Passenger within the
              * current context that meets the requirement: id == Passenger.id
+             * 
+             * Did some tests to verify that passengerToUpdate is based on the
+             * current model and NOT the user's input.  Changing it doesn't
+             * have any lasting effect on the model, either.
              */            
             var passengerToUpdate = await _context.Passengers.SingleOrDefaultAsync(p => p.ID == id);
-
 
             /*
              * The line above gets the passenger which needs to be updated.
@@ -162,12 +181,14 @@ namespace PassengerManager.Controllers
                 return View(passengerToUpdate);
             }
             */
-            
+
 
             /*
              * The below function tries to update the model with information
              * provided via the controller, meaning that this is where
              * the user input is coming into play.
+             * Unfortunately, it seems like it's all happening in an
+             * opaque black box that I don't believe I can interact with.
              * Returns true if update worked.
              */
             if (await TryUpdateModelAsync<Passenger>(
@@ -191,6 +212,69 @@ namespace PassengerManager.Controllers
             return View(passengerToUpdate);
         }
 
+
+
+        // POST: Passengers/Edit/5
+        // Method adapted from: https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/crud
+        /*
+         * The below is based on the secondary implementation of Edit from the above tutorial.
+         * Unedited, it works.
+         * But I added a check in (PassengerIsDuplicate).  It simply looks through
+         * the current model's list of passengers, and based on what it finds
+         * it returns true or false.  No editing of any data!
+         * With this check added in, editing a passenger with a unique result
+         * will always result in the following error:
+         * 
+         * InvalidOperationException: The instance of entity type 'Passenger' cannot
+         * be tracked because another instance with the same key value for {'ID'} is
+         * already being tracked. When attaching existing entities, ensure that only
+         * one entity instance with a given key value is attached. Consider using 
+         * 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting 
+         * key values.
+         */
+        /*
+         * Commenting this out for now and using the recommend EditPost method above.
+        [HttpPost, ActionName("Edit")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("ID,LastName,FirstName,PhoneNumber")] Passenger passenger)
+        {
+            if (id != passenger.ID)
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                if (PassengerIsDuplicate(passenger))
+                {
+                    // fail message
+                    ModelState.AddModelError("",
+                        "Either another passenger with this exact data already exists " +
+                        "or this passenger has not been changed." +
+                        "Passenger not created.");
+
+                    // return to previous view
+                    return View(passenger);
+                }
+
+                try
+                {
+                    _context.Update(passenger);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException)
+                {
+                    //Log the error (uncomment ex variable name and write a log.)
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                        "Try again, and if the problem persists, " +
+                        "see your system administrator.");
+                }
+            }
+            return View(passenger);
+        }
+        */
+
+
         // GET: Passengers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -209,6 +293,8 @@ namespace PassengerManager.Controllers
 
             return View(passenger);
         }
+
+
 
         // POST: Passengers/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -284,9 +370,18 @@ namespace PassengerManager.Controllers
          * It says an entry has the same key, which makes me think that
          * the Update operation is somehow being interpreted as trying to create
          * a duplicate of the data rather than simply changing the values.
-         * Not sure that makes sense though.
+         * Not sure that makes sense though.  Also not sure how to change it if
+         * it is the case.
          * 
+         * I've also been looking into other solutions.  C#'s validation system
+         * is likely a better place to perform these checks,
+         * so I've been trying to figure out how to create my own validation.
          * 
+         * At present, I have removed all of my custom validation from this
+         * application.  My instinct says that it would be poor UX to validate
+         * data differently depending on where it is being created or updated;
+         * inconsistency is very frustrating for users.  So until it can
+         * work for the whole model, it's not allowed to work for any of it.
          * 
          */
 
