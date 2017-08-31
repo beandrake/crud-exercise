@@ -18,16 +18,19 @@ namespace PassengerManager.Models
 
         [Required]
         [StringLength(50)]
+        [RegularExpression(@"^\S(.*\S)?$", ErrorMessage = "Cannot begin or end with a space.")]        
         [DisplayName("Last Name")]
         public string LastName { get; set; }
 
         [Required]
         [StringLength(50)]
+        [RegularExpression(@"^\S(.*\S)?$", ErrorMessage = "Cannot begin or end with a space.")]
         [DisplayName("First Name")]
         public string FirstName { get; set; }
 
         // not requiring this because people without phones deserve cruises, too
         [StringLength(50)]
+        [RegularExpression(@"^\S(.*\S)?$", ErrorMessage = "Cannot begin or end with a space.")]
         [DisplayName("Phone Number")]
         public string PhoneNumber { get; set; }
     }

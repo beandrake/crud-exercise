@@ -383,6 +383,12 @@ namespace PassengerManager.Controllers
          * inconsistency is very frustrating for users.  So until it can
          * work for the whole model, it's not allowed to work for any of it.
          * 
+         * It seems like the innate validation system is the way to go.  From
+         * what I've been reading, proper MVC uses the Controller only for flow
+         * control.
+         * 
+         * 
+         * 
          */
 
 
